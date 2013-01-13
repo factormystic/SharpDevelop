@@ -363,6 +363,8 @@ namespace ICSharpCode.AvalonEdit.Document
 		public void BeginUpdate()
 		{
 			VerifyAccess();
+			if (undoStack.IsFastForwarding)
+				return;
 			if (inDocumentChanging)
 				throw new InvalidOperationException("Cannot change document within another document change.");
 			beginUpdateCount++;
@@ -380,6 +382,8 @@ namespace ICSharpCode.AvalonEdit.Document
 		public void EndUpdate()
 		{
 			VerifyAccess();
+			if (undoStack.IsFastForwarding)
+				return;
 			if (inDocumentChanging)
 				throw new InvalidOperationException("Cannot end update within document change.");
 			if (beginUpdateCount == 0)
@@ -600,6 +604,9 @@ namespace ICSharpCode.AvalonEdit.Document
 		{
 			if (length == 0 && newText.Length == 0)
 				return;
+
+			if (undoStack.FastForwardMode && !undoStack.IsFastForwarding && undoStack.CanRedo && !(undoStack.state == UndoStack.StatePlaybackModifyDocument))
+				undoStack.EndUndoGroup();
 			
 			// trying to replace a single character in 'Normal' mode?
 			// for single characters, 'CharacterReplace' mode is equivalent, but more performant
@@ -611,10 +618,11 @@ namespace ICSharpCode.AvalonEdit.Document
 			DocumentChangeEventArgs args = new DocumentChangeEventArgs(offset, removedText, newText, offsetChangeMap);
 			
 			// fire DocumentChanging event
-			if (Changing != null)
+			if (Changing != null && !undoStack.IsFastForwarding)
 				Changing(this, args);
 			
-			undoStack.Push(this, args);
+			if (!undoStack.CanRedo)
+				undoStack.Push(this, args);
 			
 			cachedText = null; // reset cache of complete document text
 			fireTextChanged = true;
@@ -654,12 +662,28 @@ namespace ICSharpCode.AvalonEdit.Document
 					anchorTree.HandleTextChange(entry, delayedEvents);
 				}
 			}
+
+			// capture text, replay undo stack, then reset text
+			if (undoStack.FastForwardMode && !undoStack.IsFastForwarding && undoStack.CanRedo && !(undoStack.state == UndoStack.StatePlaybackModifyDocument))
+			{
+				undoStack.IsFastForwarding = true;
+
+				var current = this.Text;
+				new DocumentChangeOperation(this, args).Undo();
+
+				while (undoStack.CanRedo)
+					undoStack.Redo();
+
+				this.Text = current;
+
+				undoStack.IsFastForwarding = false;
+			}
 			
 			// raise delayed events after our data structures are consistent again
 			delayedEvents.RaiseEvents();
 			
 			// fire DocumentChanged event
-			if (Changed != null)
+			if (Changed != null && !undoStack.IsFastForwarding)
 				Changed(this, args);
 		}
 		#endregion

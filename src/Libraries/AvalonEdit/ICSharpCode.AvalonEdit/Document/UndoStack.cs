@@ -24,6 +24,9 @@ namespace ICSharpCode.AvalonEdit.Document
 		/// state is used for checking that noone but the UndoStack performs changes
 		/// during Undo events
 		internal int state = StateListen;
+
+		// undo stack is in the process of fast-forwarding document state back up to present during a change
+		internal bool IsFastForwarding = false;
 		
 		Deque<IUndoableOperation> undostack = new Deque<IUndoableOperation>();
 		Deque<IUndoableOperation> redostack = new Deque<IUndoableOperation>();
@@ -93,6 +96,11 @@ namespace ICSharpCode.AvalonEdit.Document
 			// don't call RecalcIsOriginalFile(): wait until end of undo group
 		}
 		#endregion
+
+		/// <summary>
+		/// Specifies if redoable operations will be replayed before non-optional undoable operations are added (if any).
+		/// </summary>
+		public bool FastForwardMode = false;
 		
 		/// <summary>
 		/// Gets if the undo stack currently accepts changes.
@@ -209,8 +217,10 @@ namespace ICSharpCode.AvalonEdit.Document
 		/// </summary>
 		public void EndUndoGroup()
 		{
-			if (undoGroupDepth == 0) throw new InvalidOperationException("There are no open undo groups");
-			undoGroupDepth--;
+			if (!IsFastForwarding) {
+				if (undoGroupDepth == 0) throw new InvalidOperationException("There are no open undo groups");
+				undoGroupDepth--;
+			}
 			//Util.LoggingService.Debug("Close undo group (new depth=" + undoGroupDepth + ")");
 			if (undoGroupDepth == 0) {
 				Debug.Assert(state == StateListen || actionCountInUndoGroup == 0);
@@ -310,7 +320,8 @@ namespace ICSharpCode.AvalonEdit.Document
 		/// </summary>
 		public void Redo()
 		{
-			ThrowIfUndoGroupOpen();
+			if (!IsFastForwarding)
+				ThrowIfUndoGroupOpen();
 			if (redostack.Count > 0) {
 				lastGroupDescriptor = null; allowContinue = false;
 				IUndoableOperation uedit = redostack.PopBack();
@@ -383,7 +394,8 @@ namespace ICSharpCode.AvalonEdit.Document
 				if (needsUndoGroup) EndUndoGroup();
 				if (wasEmpty)
 					NotifyPropertyChanged("CanUndo");
-				ClearRedoStack();
+				if (!FastForwardMode || (FastForwardMode && !isOptional))
+					ClearRedoStack();
 			}
 		}
 		
