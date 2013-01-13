@@ -15,6 +15,8 @@ namespace ICSharpCode.AvalonEdit.Editing
 {
 	sealed class CaretLayer : Layer
 	{
+		internal TimeSpan blinkTime = Win32.CaretBlinkTime;
+
 		bool isVisible;
 		Rect caretRectangle;
 		
@@ -52,7 +54,6 @@ namespace ICSharpCode.AvalonEdit.Editing
 		
 		void StartBlinkAnimation()
 		{
-			TimeSpan blinkTime = Win32.CaretBlinkTime;
 			blink = true; // the caret should visible initially
 			// This is important if blinking is disabled (system reports a negative blinkTime)
 			if (blinkTime.TotalMilliseconds > 0) {
