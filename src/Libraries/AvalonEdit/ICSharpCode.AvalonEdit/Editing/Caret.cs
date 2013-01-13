@@ -20,6 +20,18 @@ namespace ICSharpCode.AvalonEdit.Editing
 	/// </summary>
 	public sealed class Caret
 	{
+		public TimeSpan BlinkTime
+		{
+			get
+			{
+				return caretAdorner.blinkTime;
+			}
+			set
+			{
+				caretAdorner.blinkTime = value;
+			}
+		}
+
 		readonly TextArea textArea;
 		readonly TextView textView;
 		readonly CaretLayer caretAdorner;
