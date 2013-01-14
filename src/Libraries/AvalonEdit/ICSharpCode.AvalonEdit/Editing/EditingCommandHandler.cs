@@ -75,6 +75,8 @@ namespace ICSharpCode.AvalonEdit.Editing
 			CommandBindings.Add(new CommandBinding(AvalonEditCommands.ConvertLeadingTabsToSpaces, OnConvertLeadingTabsToSpaces));
 			CommandBindings.Add(new CommandBinding(AvalonEditCommands.ConvertLeadingSpacesToTabs, OnConvertLeadingSpacesToTabs));
 			CommandBindings.Add(new CommandBinding(AvalonEditCommands.IndentSelection, OnIndentSelection));
+
+			CommandBindings.Add(new CommandBinding(AvalonEditCommands.SelectCurrentWord, OnSelectCurrentWord));
 			
 			TextAreaDefaultInputHandler.WorkaroundWPFMemoryLeak(InputBindings);
 		}
@@ -571,6 +573,23 @@ namespace ICSharpCode.AvalonEdit.Editing
 					textArea.IndentationStrategy.IndentLines(textArea.Document, start, end);
 				}
 				textArea.Caret.BringCaretToView();
+				args.Handled = true;
+			}
+		}
+
+		static void OnSelectCurrentWord(object target, ExecutedRoutedEventArgs args)
+		{
+			TextArea textArea = GetTextArea(target);
+			if (textArea != null && textArea.Document != null) {
+				DocumentLine currentLine = textArea.Document.GetLineByNumber(textArea.Caret.Line);
+				var lineText = textArea.Document.GetText(currentLine.Offset, currentLine.Length);
+				foreach (System.Text.RegularExpressions.Match m in System.Text.RegularExpressions.Regex.Matches(lineText, @"(\w|\*)+")) {
+					var caretIndex = textArea.Caret.Offset - currentLine.Offset;
+					if (m.Index <= caretIndex && m.Index + m.Length >= caretIndex) {
+						textArea.Selection = new SimpleSelection(textArea, new TextViewPosition(textArea.Document.GetLocation(currentLine.Offset + m.Index)), new TextViewPosition(textArea.Document.GetLocation(currentLine.Offset + m.Index + m.Length)));
+						break;
+					}
+				}
 				args.Handled = true;
 			}
 		}
