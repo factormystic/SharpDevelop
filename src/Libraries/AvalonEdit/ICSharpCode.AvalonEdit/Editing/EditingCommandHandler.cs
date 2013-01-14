@@ -77,6 +77,8 @@ namespace ICSharpCode.AvalonEdit.Editing
 			CommandBindings.Add(new CommandBinding(AvalonEditCommands.IndentSelection, OnIndentSelection));
 
 			CommandBindings.Add(new CommandBinding(AvalonEditCommands.SelectCurrentWord, OnSelectCurrentWord));
+			CommandBindings.Add(new CommandBinding(AvalonEditCommands.TransposeLineUp, OnTransposeLineUp));
+			CommandBindings.Add(new CommandBinding(AvalonEditCommands.TransposeLineDown, OnTransposeLineDown));
 			
 			TextAreaDefaultInputHandler.WorkaroundWPFMemoryLeak(InputBindings);
 		}
@@ -592,6 +594,42 @@ namespace ICSharpCode.AvalonEdit.Editing
 				}
 				args.Handled = true;
 			}
+		}
+
+		static void OnTransposeLineUp(object target, ExecutedRoutedEventArgs args)
+		{
+			TextArea textArea = GetTextArea(target);
+			SwapLines(textArea, textArea.Caret.Line, textArea.Caret.Line - 1);
+		}
+
+		static void OnTransposeLineDown(object target, ExecutedRoutedEventArgs args)
+		{
+			TextArea textArea = GetTextArea(target);
+			SwapLines(textArea, textArea.Caret.Line, textArea.Caret.Line + 1);
+		}
+
+		static void SwapLines(TextArea textArea, int a, int b)
+		{
+			if (a < 1 || a > textArea.Document.LineCount || b < 1 || b > textArea.Document.LineCount)
+				return;
+
+			textArea.Document.UndoStack.StartUndoGroup();
+
+			var TransposingLine = textArea.Document.GetLineByNumber(a);
+			var DestinationLine = textArea.Document.GetLineByNumber(b);
+
+			var TransposingLineText = textArea.Document.GetText(TransposingLine);
+			var DestinationLineText = textArea.Document.GetText(DestinationLine);
+
+			textArea.Document.Remove(DestinationLine);
+			textArea.Document.Insert(DestinationLine.Offset, TransposingLineText);
+
+			textArea.Caret.Line += a < b ? 1 : -1;
+
+			textArea.Document.Remove(TransposingLine);
+			textArea.Document.Insert(TransposingLine.Offset, DestinationLineText);
+
+			textArea.Document.UndoStack.EndUndoGroup();
 		}
 	}
 }
