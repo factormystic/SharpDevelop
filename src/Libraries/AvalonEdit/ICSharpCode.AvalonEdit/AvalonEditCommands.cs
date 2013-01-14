@@ -13,13 +13,8 @@ namespace ICSharpCode.AvalonEdit
 	{
 		/// <summary>
 		/// Deletes the current line.
-		/// The default shortcut is Ctrl+D.
 		/// </summary>
-		public static readonly RoutedCommand DeleteLine = new RoutedCommand(
-			"DeleteLine", typeof(TextEditor),
-			new InputGestureCollection {
-				new KeyGesture(Key.D, ModifierKeys.Control)
-			});
+		public static readonly RoutedCommand DeleteLine = new RoutedCommand("DeleteLine", typeof(TextEditor));
 		
 		/// <summary>
 		/// Removes leading whitespace from the selected lines (or the whole document if the selection is empty).
@@ -82,6 +77,16 @@ namespace ICSharpCode.AvalonEdit
 			"IndentSelection", typeof(TextEditor),
 			new InputGestureCollection {
 				new KeyGesture(Key.I, ModifierKeys.Control)
+			});
+
+		/// <summary>
+		/// Selects current word.
+		/// </summary>
+		public static readonly RoutedCommand SelectCurrentWord = new RoutedCommand(
+			"SelectCurrentWord",
+			typeof(TextEditor),
+			new InputGestureCollection {
+				new KeyGesture(Key.D, ModifierKeys.Control)
 			});
 	}
 }
