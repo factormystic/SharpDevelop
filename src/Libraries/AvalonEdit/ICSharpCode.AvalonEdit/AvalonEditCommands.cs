@@ -88,5 +88,25 @@ namespace ICSharpCode.AvalonEdit
 			new InputGestureCollection {
 				new KeyGesture(Key.D, ModifierKeys.Control)
 			});
+
+		/// <summary>
+		/// Swaps the current line with the line above it.
+		/// </summary>
+		public static readonly RoutedCommand TransposeLineUp = new RoutedCommand(
+			"TransposeLineUp",
+			typeof(TextEditor),
+			new InputGestureCollection {
+				new KeyGesture(Key.Up, ModifierKeys.Control | ModifierKeys.Shift)
+			});
+		
+		/// <summary>
+		/// Swaps the current line with the line below it.
+		/// </summary>
+		public static readonly RoutedCommand TransposeLineDown = new RoutedCommand(
+			"TransposeLineDown",
+			typeof(TextEditor),
+			new InputGestureCollection {
+				new KeyGesture(Key.Down, ModifierKeys.Control | ModifierKeys.Shift)
+			});
 	}
 }
