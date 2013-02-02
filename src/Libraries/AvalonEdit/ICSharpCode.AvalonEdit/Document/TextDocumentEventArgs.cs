@@ -28,8 +28,6 @@ namespace ICSharpCode.AvalonEdit.Document
         /// </summary>
         public TextDocumentEventArgs(TextDocument doc)
         {
-            if (doc == null)
-                throw new ArgumentNullException("doc");
             this.doc = doc;
         }
     }
