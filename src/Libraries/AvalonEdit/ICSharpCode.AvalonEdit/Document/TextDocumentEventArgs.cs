@@ -15,7 +15,7 @@ namespace ICSharpCode.AvalonEdit.Document
         /// <summary>
         /// Gets the TextDocument.
         /// </summary>
-        public TextDocument Document
+        public TextDocument OldDocument
         {
             get
             {
