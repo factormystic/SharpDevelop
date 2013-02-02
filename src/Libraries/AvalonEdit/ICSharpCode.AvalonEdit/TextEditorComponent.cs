@@ -24,7 +24,7 @@ namespace ICSharpCode.AvalonEdit
 		/// Occurs when the Document property changes (when the text editor is connected to another
 		/// document - not when the document content changes).
 		/// </summary>
-		event EventHandler DocumentChanged;
+		event EventHandler<TextDocumentEventArgs> DocumentChanged;
 		
 		/// <summary>
 		/// Gets the options of the text editor.

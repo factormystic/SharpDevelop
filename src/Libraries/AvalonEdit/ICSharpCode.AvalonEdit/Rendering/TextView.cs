@@ -100,7 +100,7 @@ namespace ICSharpCode.AvalonEdit.Rendering
 		/// <summary>
 		/// Occurs when the document property has changed.
 		/// </summary>
-		public event EventHandler DocumentChanged;
+		public event EventHandler<TextDocumentEventArgs> DocumentChanged;
 		
 		void OnDocumentChanged(TextDocument oldValue, TextDocument newValue)
 		{
@@ -125,7 +125,7 @@ namespace ICSharpCode.AvalonEdit.Rendering
 			}
 			InvalidateMeasure(DispatcherPriority.Normal);
 			if (DocumentChanged != null)
-				DocumentChanged(this, EventArgs.Empty);
+				DocumentChanged(this, new TextDocumentEventArgs(oldValue));
 		}
 		
 		/// <summary>

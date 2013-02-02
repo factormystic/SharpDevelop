@@ -184,7 +184,7 @@ namespace ICSharpCode.AvalonEdit.Editing
 		}
 		
 		/// <inheritdoc/>
-		public event EventHandler DocumentChanged;
+		public event EventHandler<TextDocumentEventArgs> DocumentChanged;
 		
 		static void OnDocumentChanged(DependencyObject dp, DependencyPropertyChangedEventArgs e)
 		{
@@ -211,7 +211,7 @@ namespace ICSharpCode.AvalonEdit.Editing
 			caret.Location = new TextLocation(1, 1);
 			this.ClearSelection();
 			if (DocumentChanged != null)
-				DocumentChanged(this, EventArgs.Empty);
+				DocumentChanged(this, new TextDocumentEventArgs(oldValue));
 			CommandManager.InvalidateRequerySuggested();
 		}
 		#endregion
