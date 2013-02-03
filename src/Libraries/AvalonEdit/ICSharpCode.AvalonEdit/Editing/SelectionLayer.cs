@@ -38,6 +38,7 @@ namespace ICSharpCode.AvalonEdit.Editing
 			base.OnRender(drawingContext);
 			
 			BackgroundGeometryBuilder geoBuilder = new BackgroundGeometryBuilder();
+			geoBuilder.Margin = new Thickness(0, 1, 0, -1);
 			geoBuilder.AlignToMiddleOfPixels = true;
 			geoBuilder.ExtendToFullWidthAtLineEnd = textArea.Selection.EnableVirtualSpace;
 			geoBuilder.CornerRadius = textArea.SelectionCornerRadius;

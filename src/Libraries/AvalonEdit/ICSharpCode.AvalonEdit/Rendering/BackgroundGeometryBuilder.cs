@@ -44,12 +44,18 @@ namespace ICSharpCode.AvalonEdit.Rendering
 		/// Gets/Sets whether to extend the rectangles to full width at line end.
 		/// </summary>
 		public bool ExtendToFullWidthAtLineEnd { get; set; }
+
+		/// <summary>
+		/// Gets/Sets extra geometry margin.
+		/// </summary>
+		public Thickness Margin { get; set; }
 		
 		/// <summary>
 		/// Creates a new BackgroundGeometryBuilder instance.
 		/// </summary>
 		public BackgroundGeometryBuilder()
 		{
+			Margin = new Thickness(0);
 		}
 		
 		/// <summary>
@@ -59,6 +65,8 @@ namespace ICSharpCode.AvalonEdit.Rendering
 		{
 			if (textView == null)
 				throw new ArgumentNullException("textView");
+
+			double left, top, right, bottom;
 			Size pixelSize = PixelSnapHelpers.GetPixelSize(textView);
 			foreach (Rect r in GetRectsForSegment(textView, segment, ExtendToFullWidthAtLineEnd)) {
 				AddRectangle(pixelSize, r);
@@ -80,6 +88,8 @@ namespace ICSharpCode.AvalonEdit.Rendering
 
 		void AddRectangle(Size pixelSize, Rect r)
 		{
+			r = new Rect(r.Left - Margin.Left, r.Top - Margin.Top, r.Right - r.Left + Margin.Right + Margin.Left, r.Bottom - r.Top + Margin.Top + Margin.Bottom);
+
 			if (AlignToWholePixels) {
 				AddRectangle(PixelSnapHelpers.Round(r.Left, pixelSize.Width),
 				             PixelSnapHelpers.Round(r.Top + 1, pixelSize.Height),
