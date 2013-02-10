@@ -367,7 +367,7 @@ namespace ICSharpCode.AvalonEdit.Editing
 			
 			return new Rect(xPos,
 			                lineTop,
-			                SystemParameters.CaretWidth,
+			                CaretWidth,
 			                lineBottom - lineTop);
 		}
 		
@@ -480,5 +480,22 @@ namespace ICSharpCode.AvalonEdit.Editing
 			get { return caretAdorner.CaretBrush; }
 			set { caretAdorner.CaretBrush = value; }
 		}
+
+		/// <summary>
+		/// Gets/Sets the width of the caret.
+		/// Setting the width to NaN will cause the system caret width to be used.
+		/// </summary>
+		public double CaretWidth
+		{
+			get
+			{
+				return _caretwidth == double.NaN ? SystemParameters.CaretWidth : _caretwidth;
+			}
+			set
+			{
+				_caretwidth = value;
+			}
+		}
+		double _caretwidth = double.NaN; 
 	}
 }
